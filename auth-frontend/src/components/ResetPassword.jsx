@@ -1,24 +1,34 @@
 import React, { useState } from "react";
+import axios from "axios";
+import { useSearchParams } from "react-router-dom";
 
 const ResetPassword = () => {
-  const [email, setEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [searchParams] = useSearchParams();
+  const resetToken = searchParams.get("token");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Basic Validation
-    if (!email) {
-      setError("Email is required.");
-      return;
+    setMessage("");
+    setError("");
+
+    try {
+      const response = await axios.post("http://localhost:5000/reset-password", {
+        resetToken,
+        newPassword,
+      });
+      setMessage(response.data); // Success message from server
+      setNewPassword(""); // Clear the password field
+    } catch (err) {
+      if (err.response && err.response.data) {
+        setError(err.response.data); // Error message from server
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
     }
-
-    setError(""); // Clear errors
-    console.log("Reset Password Request for:", email);
-
-    // Simulate sending a reset link
-    setMessage("If this email is registered, a reset link has been sent.");
   };
 
   return (
@@ -27,19 +37,16 @@ const ResetPassword = () => {
       <form onSubmit={handleSubmit}>
         <div>
           <input
-            type="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            type="password"
+            placeholder="Enter new password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
           />
         </div>
-        {error && <p>{error}</p>}
-        {message && <p>{message}</p>}
-        <button type="submit">Send Reset Link</button>
+        <button type="submit">Reset Password</button>
       </form>
-      <p>
-        Back to <a href="/login">Login</a>
-      </p>
+      {message && <p style={{ color: "green" }}>{message}</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
     </div>
   );
 };

@@ -1,12 +1,14 @@
 import React, { useState } from "react";
+import axios from "axios";
 
 const Signup = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Basic Validation
@@ -16,8 +18,25 @@ const Signup = () => {
     }
 
     setError(""); // Clear errors
-    console.log("Signup details:", { name, email, password });
-    // API request will be added later
+    setSuccess(""); // Clear success message
+
+    try {
+      const response = await axios.post("http://localhost:5000/signup", { name, email, password });
+      if (response.status === 201) {
+        setSuccess("Signup successful!");
+        setName("");
+        setEmail("");
+        setPassword("");
+      } else {
+        setError("Error signing up. Please try again.");
+      }
+    } catch (error) {
+      if (error.response && error.response.data) {
+        setError(error.response.data);
+      } else {
+        setError("Error signing up. Please try again.");
+      }
+    }
   };
 
   return (
@@ -48,7 +67,8 @@ const Signup = () => {
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        {error && <p>{error}</p>}
+        {error && <p style={{ color: "red" }}>{error}</p>}
+        {success && <p style={{ color: "green" }}>{success}</p>}
         <button type="submit">Sign Up</button>
       </form>
       <p>

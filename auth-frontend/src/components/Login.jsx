@@ -1,11 +1,15 @@
 import React, { useState } from "react";
+import axios from "axios";
+
+
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Basic Validation
@@ -15,8 +19,36 @@ const Login = () => {
     }
 
     setError(""); // Clear errors
+    setSuccess(""); // Clear success message
     console.log("Login details:", { email, password });
     // API request will be added later
+    try{
+      
+      const response = await axios.post("http://localhost:5000/login", { email, password });
+      
+      // Check if the response status is 200
+      if(response.status === 200){
+        //extract jwt token from response
+        const {token} = response.data;
+
+        //save token in local storage
+        localStorage.setItem("authToken", token);
+
+        setSuccess("Login successful!");
+        setEmail("");
+        setPassword("");
+      }
+    
+    
+    }catch(error){
+      
+      if(error.response && error.response.data){
+        setError(error.response.data);
+      }else{
+        setError("Error logging in. Please try again.");
+      }
+    }
+
   };
 
   return (
@@ -40,13 +72,14 @@ const Login = () => {
           />
         </div>
         {error && <p>{error}</p>}
+        {success && <p>{success}</p>}
         <button type="submit">Login</button>
       </form>
       <p>
         Don’t have an account? <a href="/signup">Sign up</a>
       </p>
         <p>
-            Forgot password? <a href="/reset-password">Reset password</a>
+            Forgot password? <a href="/forgot-password">Forgot password</a>
         </p>
     </div>
   );
