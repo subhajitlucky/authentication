@@ -1,9 +1,11 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
-
-
+import { setToken } from "../utils/auth";
 
 const Login = () => {
+  // React Router navigation hook
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -28,15 +30,22 @@ const Login = () => {
       
       // Check if the response status is 200
       if(response.status === 200){
-        //extract jwt token from response
+        // Extract JWT token from response
         const {token} = response.data;
 
-        //save token in local storage
-        localStorage.setItem("authToken", token);
+        // Save token using our auth utility (better practice)
+        setToken(token);
 
         setSuccess("Login successful!");
+        
+        // Clear form fields
         setEmail("");
         setPassword("");
+        
+        // Navigate to test page after successful login
+        setTimeout(() => {
+          navigate("/test");
+        }, 1000); // Small delay to show success message
       }
     
     

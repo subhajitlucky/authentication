@@ -1,30 +1,30 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const bodyParser = require("body-parser");
-const cors = require("cors");
-const dotenv = require("dotenv");
-const User = require("./models/User");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const authenticateToken = require("./middlewares/authMiddleware"); // Import middleware
-const crypto = require("crypto");
+// Import required packages for the authentication server
+const express = require("express");           // Web framework for Node.js
+const mongoose = require("mongoose");         // MongoDB object modeling tool
+const bodyParser = require("body-parser");    // Middleware to parse request bodies
+const cors = require("cors");                 // Cross-Origin Resource Sharing middleware
+const dotenv = require("dotenv");             // Load environment variables from .env file
+const User = require("./models/User");        // Import User model/schema
+const bcrypt = require("bcrypt");             // Library for hashing passwords
+const jwt = require("jsonwebtoken");          // Library for creating and verifying JWT tokens
+const authenticateToken = require("./middlewares/authMiddleware"); // Custom JWT verification middleware
+const crypto = require("crypto");             // Node.js crypto module for generating secure random tokens
 
-dotenv.config(); // Load environment variables
+// Load environment variables from .env file into process.env
+dotenv.config();
 
+// Create Express application instance
 const app = express();
 
-// Middleware
-app.use(bodyParser.json());
-app.use(cors());
+// Middleware Setup
+app.use(bodyParser.json());  // Parse JSON request bodies (req.body will contain parsed JSON)
+app.use(cors());             // Enable Cross-Origin Resource Sharing for frontend-backend communication
 
-// MongoDB Connection
+// MongoDB Database Connection
 mongoose
-  .connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log("Connected to MongoDB"))
-  .catch((err) => console.error("MongoDB Connection Error:", err));
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("✅ Connected to MongoDB successfully"))
+  .catch((err) => console.error("❌ MongoDB Connection Error:", err));
 
 // Routes
 app.get("/", (req, res) => res.send("API is running..."));
